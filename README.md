@@ -54,7 +54,15 @@
 
 ---
 
-[![제품 조회](http://k.kakaocdn.net/dn/AhnLp/btrXcqz7mHJ/TfOP5h2WtIWOygO8dXaO71/img_xl.jpg)](https://tv.kakao.com/v/435698156)
+> # 제품 조회
+
+![제품 조회](./initData/preview1.gif)
+
+---
+
+> # 게시글, 상점 정보 확인
+
+![정보 조회](./initData/preview2.gif)
 
 ## 개발 구조 ⚙️
 
