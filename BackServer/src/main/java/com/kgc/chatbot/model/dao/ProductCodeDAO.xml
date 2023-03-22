@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kgc.chatbot.model.dao.ProductCodeDAO">
+	<sql id="basicSelectSQL">
+		select productCode,mainName,subName,productName,thumbnail from productcode
+	</sql>
+	
+	<sql id="getLastCodeSQL">
+		select LPAD(MAX(productCode)+1,5,'0') from productcode where productCode LIKE CONCAT(#{subCode},'%')
+	</sql>
+	
+	<resultMap type="ProductCode" id="ProductCodeInfoMap" autoMapping="true">
+		<id column="productCode" property="productCode"/>
+		<association property="productInfo" resultMap="com.kgc.chatbot.model.dao.ProductInfoDAO.productInfoMap"></association>
+	</resultMap>
+	
+	<resultMap id="productCodeMap" type="ProductCode">
+		<id column="productCode" property="productCode"></id>
+		<result column="mainName" property="mainName"></result>
+		<result column="subName" property="subName"></result>
+		<result column="productName" property="productName"></result>
+		<result column="thumbnail" property="thumbnail"></result>
+	</resultMap>
+	
+	<select id="selectProductCodes" parameterType="String" resultType="ProductCode">
+		<include refid="basicSelectSQL"/>
+		where productCode LIKE CONCAT(#{subCode},'%')
+	</select>
+	
+	<select id="selectProductCodesWithInfo" parameterType="String" resultMap="ProductCodeInfoMap">
+		select c.productCode,c.mainName,c.subName,c.productName,c.thumbnail,i.composition,i.price,i.discount,i.startdiscount,i.enddiscount,i.discountRate,i.discountPrice,i.totalPrice,i.volume,i.comment,i.detail,i.usage,i.health,i.productLevel,i.sale,i.alert
+		from productcode c
+		left outer join productinfo i on(c.productCode=i.productCode)
+		where c.productCode LIKE CONCAT(#{subCode},'%')
+	</select>
+	
+	<select id="selectProductCode" parameterType="String" resultType="ProductCode">
+		<include refid="basicSelectSQL"/>
+		where productCode = #{productCode}
+	</select>
+	
+	<select id="selectProductCodeWithInfo" parameterType="String" resultMap="ProductCodeInfoMap">
+		select c.productCode,c.mainName,c.subName,c.productName,c.thumbnail,i.composition,i.price,i.discount,i.startdiscount,i.enddiscount,i.discountRate,i.discountPrice,i.totalPrice,i.volume,i.comment,i.detail,i.usage,i.health,i.productLevel,i.sale,i.alert
+		from productcode c
+		left outer join productinfo i on(c.productCode=i.productCode)
+		where c.productCode=#{productCode}
+	</select>
+	
+	<select id="getLastProductCode" parameterType="String" resultType="String">
+		<include refid="getLastCodeSQL"/>
+	</select>
+	
+	<insert id="insertProductCode" parameterType="map">
+		<selectKey keyProperty="productCode.productCode" resultType="string" order="BEFORE">
+			SELECT LPAD(MAX(productCode)+1,5,'0') as productCode from productcode where productCode LIKE concat(#{subCode},"%");
+		</selectKey>
+		insert into productcode(productCode,mainName,subName,productName)
+		values(#{productCode.productCode},#{productCode.mainName},#{productCode.subName},#{productCode.productName})
+	</insert>
+	
+	<update id="updateProductCode" parameterType="productCode">
+<!-- 		<selectKey resultType="String" keyProperty="lastCode" order="BEFORE">
+			<include refid="getLastCodeSQL"/>
+		</selectKey> -->
+		update productcode
+		set mainName=#{mainName},subName=#{subName},productName=#{productName},thumbnail=#{thumbnail}
+		where productCode=#{productCode}
+	</update>
+	
+	<delete id="deleteProductCode" parameterType="String">
+		delete from productcode where productCode=#{productCode}
+	</delete>
+	
+	
+</mapper>

@@ -1,0 +1,2 @@
+"use strict";(self["webpackChunkadmin_vue"]=self["webpackChunkadmin_vue"]||[]).push([[959],{7959:function(e,n,u){u.r(n),u.d(n,{default:function(){return f}});var a=function(){var e=this,n=e._self._c;return n("div",[n("header-nav"),n("router-view")],1)},r=[],t=u(2641),i={components:{HeaderNav:t.Z}},s=i,c=u(1001),d=(0,c.Z)(s,a,r,!1,null,"4e7da1fa",null),f=d.exports}}]);
+//# sourceMappingURL=959.e7f33f5a.js.map

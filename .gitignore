@@ -1,0 +1,7 @@
+/admin-vue/.env
+/BackServer/target
+/BackServer/src/test
+/BackServer/src/main/resources/application.properties
+/BackServer/src/main/resources/properties/env.properties
+/initData/Dump20230126.sql
+.DS_Store

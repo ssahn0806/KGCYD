@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kgc.chatbot.model.dao.SubCodeDAO">
+	
+	<select id="selectSubCodes" parameterType="String" resultType="SubCode">
+		select subCode,subName,subDescription,saleCount,thumbnail from subcode where subCode LIKE CONCAT(#{mainCode},'%')
+	</select>
+	
+	<select id="selectSubCode" parameterType="String" resultType="SubCode">
+		select subCode,subName,subDescription,saleCount,thumbnail from subcode where subCode=#{subCode}
+	</select>
+	
+	<select id="selectCount" parameterType="String" resultType="int">
+		select saleCount from subcode where subCode = #{subCode}
+	</select>
+	
+	<update id="updateCountPlus" parameterType="String">
+		update subcode set saleCount=saleCount+1
+		where subCode=#{subCode}
+	</update>
+	
+	<update id="updateCountMinus" parameterType="String">
+		update subcode set saleCount=saleCount-1
+		where subCode=#{subCode}
+	</update>
+	
+	<insert id="insertSubCode" parameterType="SubCode">
+		insert into subcode(subCode,subName,subDescriptionthumbnail)
+		values(#{subCode},#{subName},#{subDescription},#{thumbnail})
+	</insert>
+	
+	<delete id="deleteSubCode" parameterType="String">
+		delete from subcode where subCode=#{subCode}
+	</delete>
+	
+	<update id="updateSubCode" parameterType="SubCode">
+		update subcode set subName=#{subName},subDescription=#{subDescription},thumbnail=#{thumbnail}
+		where subCode=#{subCode}
+	</update>
+</mapper>
