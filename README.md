@@ -56,13 +56,13 @@
 
 > # 제품 조회
 
-![제품 조회](./initData/preview1.gif)
+<img src="./initData/preview1.gif" width="50%" alt="제품 조회">
 
 ---
 
 > # 게시글, 상점 정보 확인
 
-![정보 조회](./initData/preview2.gif)
+<img src="./initData/preview2.gif" width="50%" alt="게시글 조회">
 
 ## 개발 구조 ⚙️
 
