@@ -54,7 +54,7 @@
 
 ---
 
-[![제품 조회](http://k.kakaocdn.net/dn/AhnLp/btrXcqz7mHJ/TfOP5h2WtIWOygO8dXaO71/img_xl.jpg)](http://pf.kakao.com/_xnTuxaxj/98656472)
+[![제품 조회](http://k.kakaocdn.net/dn/AhnLp/btrXcqz7mHJ/TfOP5h2WtIWOygO8dXaO71/img_xl.jpg)](https://tv.kakao.com/v/435698156)
 
 ## 개발 구조 ⚙️
 
