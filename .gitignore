@@ -1,4 +1,5 @@
 /admin-vue/.env
+/admin-vue/src/api
 /BackServer/target
 /BackServer/src/test
 /BackServer/src/main/resources/application.properties
