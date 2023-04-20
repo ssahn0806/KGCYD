@@ -122,6 +122,18 @@
 		limit #{start},#{end}
 	</select>
 	
+	<select id="selectProductInfosByRate" parameterType="int" resultType="ProductInfo">
+		<include refid="basicSql"/>
+		where discountRate=#{rate}
+	</select>
+	
+	<select id="selectProductInfosWithCategoryByRate" parameterType="map" resultMap="ProductInfoCategoryMap">
+		<include refid="joinSql"></include>
+		where i.discountRate=#{rate}
+		order by i.totalPrice
+		limit #{start},#{end}
+	</select>
+	
 	<select id="selectProductInfoWithCategory" parameterType="String" resultMap="ProductInfoCategoryMap">
 		<include refid="joinSql"></include>
 		where i.productCode=#{code}

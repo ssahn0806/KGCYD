@@ -22,6 +22,10 @@ public interface ProductInfoDAO {
 	
 	List<ProductInfo> selectProductInfosWithCategoryByLevel(Map<String,Integer> condition);
 	
+	List<ProductInfo> selectProductInfosByRate(int rate);
+	
+	List<ProductInfo> selectProductInfosWithCategoryByRate(Map<String,Integer> condition);
+	
 	ProductInfo selectProductInfo(String code);
 	
 	ProductInfo selectProductInfoWithCategory(String code);

@@ -640,6 +640,37 @@ public class ChatController {
 			srb.addReplies(new QuickReplies().label("다른 방식으로 조회").action("block").blockId(searchOptId));
 			srb.addReplies(new QuickReplies().label("전체 메뉴 보기").action("block").blockId(mainMenuId));
 		}
+		//할인 제품
+		else if(clientExtra.containsKey("rate")) {
+			isPage = true;
+			String srate = (String)clientExtra.get("rate");
+			int rate = Integer.valueOf(srate);
+			int pgNo = 1;
+			if(clientExtra.containsKey("limit"))
+				pgNo = (int)(long)clientExtra.get("limit");
+			
+			infos = productService.selectProductInfosWithCategoryByRate(rate,pgNo).stream().filter(info->info.isSale()).collect(Collectors.toList());
+			List<ProductInfo> total = productService.selectProductInfosByRate(rate).stream().filter(info->info.isSale()).collect(Collectors.toList());
+			if(pgNo==1 && pgNo*15<total.size()) {		
+				JSONObject next = new JSONObject();
+				next.put("limit",pgNo+1);
+				next.put("rate",srate);
+				srb.addReplies(new QuickReplies().label((pgNo+1)+"페이지 보기").action("block").blockId(productListId).extra(next));
+			}
+			else if(pgNo>1){
+				JSONObject prev = new JSONObject();
+				prev.put("limit",pgNo-1);
+				prev.put("rate",srate);
+				srb.addReplies(new QuickReplies().label((pgNo-1)+"페이지 보기").action("block").blockId(productListId).extra(prev));
+				if(pgNo*15<total.size()) {
+					JSONObject next = new JSONObject();
+					next.put("limit",pgNo+1);
+					next.put("rate",srate);
+					srb.addReplies(new QuickReplies().label((pgNo+1)+"페이지 보기").action("block").blockId(productListId).extra(next));
+				}
+			}				
+			srb.addReplies(new QuickReplies().label("행사 더보기").action("message").messageText("행사 제품"));
+		}
 		//추천 상품
 		else {
 			isPage = true;
@@ -695,6 +726,9 @@ public class ChatController {
 
 						int totalPrice = (int)((info.getPrice()*(1.0-info.getDiscountRate()*0.01))- info.getDiscountPrice());
 						card.discountedPrice(totalPrice);
+						if(info.getDiscountPrice()==0 && info.getDiscountRate()>0) {
+							card.discountRate(info.getDiscountRate());
+						}
 						card.discount(info.getPrice()-totalPrice);
 					}
 				}
@@ -704,8 +738,9 @@ public class ChatController {
 				JSONObject extra = new JSONObject();
 				extra.put("productCode",product.getProductCode());
 //				if(clientExtra.containsKey("subCode")) extra.put("subCode",)
+				card.buttons(new Button().label("전화문의").action("phone").phoneNumber("043-744-2304"));
 				card.buttons(new Button().label("상세보기").messageText(info.getProductName()+" "+info.getComposition()).action("block").blockId(productDetailId).extra(extra));
-				card.buttons(new Button().label("공유하기").action("share").messageText(info.getComment()));
+				card.buttons(new Button().label("공유하기").action("share"));
 				carousel.items(card.build());
 			}
 		}
@@ -736,6 +771,9 @@ public class ChatController {
 
 							int totalPrice = (int)((info.getPrice()*(1.0-info.getDiscountRate()*0.01))- info.getDiscountPrice());
 							card.discountedPrice(totalPrice);
+							if(info.getDiscountPrice()==0 && info.getDiscountRate()>0) {
+								card.discountRate(info.getDiscountRate());
+							}
 							card.discount(info.getPrice()-totalPrice);
 						}
 					}
@@ -745,15 +783,22 @@ public class ChatController {
 					
 					JSONObject extra = new JSONObject();
 					extra.put("productCode",product.getProductCode());
+					card.buttons(new Button().label("전화문의").action("phone").phoneNumber("043-744-2304"));
 					card.buttons(new Button().label("상세보기").messageText(info.getProductName()+" "+info.getComposition()).action("block").blockId(productDetailId).extra(extra));
-					card.buttons(new Button().label("공유하기").action("share").messageText(info.getComment()));
+					card.buttons(new Button().label("공유하기").action("share"));
 					carousel.items(card.build());
 				}	
 			}
 			else {
-				CommerceCard card = new CommerceCard();
-				card.description("등록된 상품이 없습니다.");
-				card.price(0);
+				carousel.type("basicCard");
+				BasicCard card = new BasicCard();
+				card.title("조회 결과 : 0건");
+				card.description("선택하신 조건으로 검색된 제품이 없습니다.");
+				card.thumbnail(new Thumbnail().imageUrl(imageURL+"empty.png"));
+				card.profile(new Profile().nickname("정관장 영동점").imageUrl(imageURL+"profile.png"));
+				card.buttons(new Button().action("phone").label("전화로 문의하기").phoneNumber("043-744-2304"));
+				card.buttons(new Button().action("block").label("조회 방법 선택").blockId(searchOptId));
+				card.buttons(new Button().action("block").label("전체 메뉴 보기").blockId(mainMenuId));
 				carousel.items(card.build());
 			}
 		}

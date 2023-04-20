@@ -61,6 +61,10 @@ public interface ProductService {
 	
 	List<ProductInfo> selectProductInfosWithCategoryByLevel(int level,int pgNo);
 	
+	List<ProductInfo> selectProductInfosByRate(int rate);
+	
+	List<ProductInfo> selectProductInfosWithCategoryByRate(int rate,int pgNo);
+	
 	ProductInfo selectProductInfo(String code);
 	
 	ProductInfo selectProductInfoWithCategory(String code);

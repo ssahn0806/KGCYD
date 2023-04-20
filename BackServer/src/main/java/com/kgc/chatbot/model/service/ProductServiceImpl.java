@@ -174,6 +174,25 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	@Override
+	public List<ProductInfo> selectProductInfosByRate(int rate){
+		return productInfoDAO.selectProductInfosByRate(rate);
+	}
+	@Override
+	public List<ProductInfo> selectProductInfosWithCategoryByRate(int rate,int pgNo){
+		final int pagePerCnt = 15;
+		final int start = (pgNo-1)*pagePerCnt;
+		final int end = pagePerCnt;
+		// 1 : 0 ~ 14
+		// 2 : 15 ~ 29
+		// 3: 30 ~ 44
+		// i : (i-1)*15 ~ i*15-1
+		Map<String,Integer> condition = new HashMap<>();
+		condition.put("rate",rate);
+		condition.put("start",start);
+		condition.put("end",end);
+		return productInfoDAO.selectProductInfosWithCategoryByRate(condition);
+	}
+	@Override
 	public ProductInfo selectProductInfo(String code) {
 		return productInfoDAO.selectProductInfo(code);
 	}
