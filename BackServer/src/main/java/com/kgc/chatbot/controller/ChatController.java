@@ -502,16 +502,20 @@ public class ChatController {
 		
 		JSONObject userReq = (JSONObject)jsonParser.parse(payload.toString());
 		JSONObject action= (JSONObject)userReq.get("action");
+		
 		JSONObject clientExtra = (JSONObject)action.get("detailParams");
 		JSONObject productName = (JSONObject)clientExtra.get("productName");
-		String searchVal = (String)productName.get("origin");
-		String searchCnt = (String)productName.get("value");
+		String originVal = (String)productName.get("origin");
+		String searchVal = (String)productName.get("value");
+		
+		List<ProductInfo> productInfos = productService.selectProductInfosByName(searchVal).stream().filter(info->info.isSale()).collect(Collectors.toList());
+		
 		
 		BasicCard card = new BasicCard();
 		
 		card.thumbnail(new Thumbnail().imageUrl(imageURL+"searchResult.png"));
-		card.title("입력 값 : "+searchVal);
-		card.description("총 "+searchCnt+"개 제품이 검색되었습니다.");
+		card.title("입력 값 : "+originVal);
+		card.description("총 "+productInfos.size()+"개 제품이 검색되었습니다.");
 		
 		Button button = new Button();
 		button.label("검색된 제품 보기");
@@ -695,7 +699,8 @@ public class ChatController {
 					srb.addReplies(new QuickReplies().label((pgNo+1)+"페이지 보기").action("block").blockId(productListId).extra(next));
 				}
 			}				
-			srb.addReplies(new QuickReplies().label("다른 메뉴 보기").action("block").blockId(mainMenuId));
+//			srb.addReplies(new QuickReplies().label("다른 메뉴 보기").action("block").blockId(mainMenuId));
+//			srb.addReplies(new QuickReplies().label("추천 더보기").action("message").messageText("가정의 달"));
 			
 		}
 		

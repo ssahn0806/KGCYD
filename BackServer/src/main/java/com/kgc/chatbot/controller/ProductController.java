@@ -361,7 +361,8 @@ public class ProductController {
 		}
 		else {
 			response.put("status","SUCCESS");
-			response.put("value",productInfos.size());
+//			response.put("value",productInfos.size());
+			response.put("value", targetName);
 			response.put("message","조회 성공");	
 		}
 		
