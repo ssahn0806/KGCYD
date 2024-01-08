@@ -51,7 +51,7 @@ public interface ProductService {
 	
 	List<ProductInfo> selectProductInfosByName(String name);
 	
-	List<ProductInfo> selectProductInfosWithCategoryByName(String name);
+	List<ProductInfo> selectProductInfosWithCategoryByName(String name,int pgNo);
 	
 	List<ProductInfo> selectProductInfosByPrice(Map<String,Integer> condition);
 	

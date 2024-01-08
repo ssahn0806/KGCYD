@@ -6,3 +6,4 @@
 /BackServer/src/main/resources/properties/env.properties
 /initData/Dump20230126.sql
 .DS_Store
+/.metadata/

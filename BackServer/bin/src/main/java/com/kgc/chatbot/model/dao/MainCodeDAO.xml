@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kgc.chatbot.model.dao.MainCodeDAO">
+	
+	<select id="selectMainCodes" resultType="MainCode">
+		select mainCode,mainName,mainDescription,thumbnail from maincode
+	</select>
+	
+	<select id="selectMainCode" parameterType="String" resultType="MainCode">
+		select mainCode,mainName,mainDescription,thumbnail from maincode where mainCode=#{mainCode}
+	</select>
+	
+	<insert id="insertMainCode" parameterType="MainCode">
+		insert into maincode(mainCode,mainName,mainDescription,thumbnail)
+		values(#{mainCode},#{mainName},#{mainDescription},#{thumbnail})
+	</insert>
+	
+	<delete id="deleteMainCode" parameterType="String">
+		delete from maincode where mainCode=#{mainCode}
+	</delete>
+	
+	<update id="updateMainCode" parameterType="MainCode">
+		update maincode set mainName=#{mainName},mainDescription=#{mainDescription},thumbnail=#{thumbnail}
+		where mainCode=#{mainCode}
+	</update>
+</mapper>

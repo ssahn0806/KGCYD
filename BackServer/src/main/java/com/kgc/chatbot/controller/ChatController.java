@@ -131,6 +131,7 @@ public class ChatController {
 	
 	final String mapUrl = "https://spi.maps.daum.net/map2/map/imageservice?IW=550&IH=350";
 
+	final String marketName = "정관장 충북영동점";
 	StringBuilder sb;
 	
 	//오시는 길
@@ -403,11 +404,11 @@ public class ChatController {
 			carousel.items(card.build());
 		}
 		else {
-			int cardCnt = (codeCnt-1)/5+1;
+			int cardCnt = (codeCnt-1)/4+1;
 			for(int i=0;i<cardCnt;i++) {
 				ListCard card = new ListCard();
 				card.header(new ListItem().title("정관장 제품 카테고리 "+(i+1)));
-				for(int j=i*5;j<Math.min((i+1)*5, codeCnt);j++) {
+				for(int j=i*4;j<Math.min((i+1)*4, codeCnt);j++) {
 					MainCode code = mainCodes.get(j);
 					ListItem item = new ListItem();
 					item.title(code.getMainName());
@@ -462,11 +463,11 @@ public class ChatController {
 			carousel.items(card.build());
 		}
 		else {
-			int cardCnt = (codeCnt-1)/5+1;
+			int cardCnt = (codeCnt-1)/4+1;
 			for(int i=0;i<cardCnt;i++) {
 				ListCard card = new ListCard();
 				card.header(new ListItem().title(mainName+" 제품군"));
-				for(int j=i*5;j<Math.min((i+1)*5, codeCnt);j++) {
+				for(int j=i*4;j<Math.min((i+1)*4, codeCnt);j++) {
 					SubCode code = subCodes.get(j);
 					ListItem item = new ListItem();
 					item.title(code.getSubName());
@@ -552,8 +553,13 @@ public class ChatController {
 		
 		List<ProductCode> products = new ArrayList<>();
 		List<ProductInfo> infos = new ArrayList<>();
+		
+		int categoryNo = 1;
 		//카테고리 조회
 		if(clientExtra.containsKey("subCode")) {
+			if(clientExtra.containsKey("limit"))
+				categoryNo = (int)(long)clientExtra.get("limit");
+			
 			String subCode = (String)clientExtra.get("subCode");
 			products = productService.selectProductCodesWithInfo(subCode).stream().filter(code->code.getProductInfo().isSale()).collect(Collectors.toList());
 			String mainCode = (String)clientExtra.get("mainCode");
@@ -562,6 +568,31 @@ public class ChatController {
 			JSONObject ext = new JSONObject();
 			ext.put("mainCode",mainCode);
 			ext.put("mainName",mainName);
+			
+			if(categoryNo==1 && categoryNo*10<products.size()) {
+				JSONObject next = new JSONObject();
+				next.put("limit",categoryNo+1);
+				next.put("subCode",subCode);
+				next.put("mainName",mainName);
+				next.put("mainCode",mainCode);
+				srb.addReplies(new QuickReplies().label((categoryNo+1)+"페이지 보기").action("block").blockId(productListId).extra(next));
+			}
+			else if(categoryNo>1) {
+				JSONObject prev = new JSONObject();
+				prev.put("limit",categoryNo-1);
+				prev.put("subCode",subCode);
+				prev.put("mainName",mainName);
+				prev.put("mainCode",mainCode);
+				srb.addReplies(new QuickReplies().label((categoryNo-1)+"페이지 보기").action("block").blockId(productListId).extra(prev));
+				if(categoryNo*10<products.size()) {
+					JSONObject next = new JSONObject();
+					next.put("limit",categoryNo+1);
+					next.put("subCode",subCode);
+					next.put("mainName",mainName);
+					next.put("mainCode",mainCode);
+					srb.addReplies(new QuickReplies().label((categoryNo+1)+"페이지 보기").action("block").blockId(productListId).extra(next));
+				}
+			}
 			if(fromAge!=null && fromAge.equals("1")) {
 				srb.addReplies(new QuickReplies().label("다른 연령대 보기").action("block").blockId(searchAgeId));		
 			}
@@ -573,6 +604,8 @@ public class ChatController {
 		}
 		//연령대별 조회
 		else if(clientExtra.containsKey("subCodes")) {
+			if(clientExtra.containsKey("limit"))
+				categoryNo = (int)(long)clientExtra.get("limit");
 			String fromAge = (String)clientExtra.get("fromAge");
 			StringTokenizer st = new StringTokenizer((String)clientExtra.get("subCodes"),",");
 			while(st.hasMoreTokens()) {
@@ -580,6 +613,26 @@ public class ChatController {
 				List<ProductCode> items = productService.selectProductCodesWithInfo(subCode).stream().filter(code->code.getProductInfo().isSale()).collect(Collectors.toList());	
 				for(ProductCode item : items)	products.add(item);
 			}
+			
+			if(categoryNo==1 && categoryNo*10<products.size()) {
+				JSONObject next = new JSONObject();
+				next.put("limit",categoryNo+1);
+				next.put("subCodes",clientExtra.get("subCodes"));
+				srb.addReplies(new QuickReplies().label((categoryNo+1)+"페이지 보기").action("block").blockId(productListId).extra(next));
+			}
+			else if(categoryNo>1) {
+				JSONObject prev = new JSONObject();
+				prev.put("limit",categoryNo-1);
+				prev.put("subCodes",clientExtra.get("subCodes"));
+				srb.addReplies(new QuickReplies().label((categoryNo-1)+"페이지 보기").action("block").blockId(productListId).extra(prev));
+				if(categoryNo*10<products.size()) {
+					JSONObject next = new JSONObject();
+					next.put("limit",categoryNo+1);
+					next.put("subCodes",clientExtra.get("subCodes"));
+					srb.addReplies(new QuickReplies().label((categoryNo+1)+"페이지 보기").action("block").blockId(productListId).extra(next));
+				}
+			}
+			
 			if(fromAge!=null && fromAge.equals("1")) {
 				srb.addReplies(new QuickReplies().label("다른 연령대 보기").action("block").blockId(searchAgeId));		
 			}
@@ -588,8 +641,30 @@ public class ChatController {
 		}
 		//상품명 조회
 		else if(clientExtra.containsKey("searchName")) {
+			int pgNo = 1;
+			if(clientExtra.containsKey("limit"))
+				pgNo = (int)(long)clientExtra.get("limit");
 			String searchName = (String)clientExtra.get("searchName");
-			infos = productService.selectProductInfosWithCategoryByName(searchName).stream().filter(info->info.isSale()).collect(Collectors.toList());
+			infos = productService.selectProductInfosWithCategoryByName(searchName,pgNo).stream().filter(info->info.isSale()).collect(Collectors.toList());
+			List<ProductInfo> total = productService.selectProductInfosByName(searchName).stream().filter(info->info.isSale()).collect(Collectors.toList());
+			if(pgNo==1 && pgNo*10<total.size()) {
+				JSONObject next = new JSONObject();
+				next.put("limit",pgNo+1);
+				next.put("searchName",searchName);
+				srb.addReplies(new QuickReplies().label((pgNo+1)+"페이지 보기").action("block").blockId(productListId).extra(next));
+			}
+			else if(pgNo>1) {
+				JSONObject prev = new JSONObject();
+				prev.put("limit",pgNo-1);
+				prev.put("searchName",searchName);
+				srb.addReplies(new QuickReplies().label((pgNo-1)+"페이지 보기").action("block").blockId(productListId).extra(prev));
+				if(pgNo*10<total.size()) {
+					JSONObject next = new JSONObject();
+					next.put("limit",pgNo+1);
+					next.put("searchName",searchName);
+					srb.addReplies(new QuickReplies().label((pgNo+1)+"페이지 보기").action("block").blockId(productListId).extra(next));
+				}
+			}
 			srb.addReplies(new QuickReplies().label("다른 상품명으로 조회").action("block").blockId(searchNameId));
 			srb.addReplies(new QuickReplies().label("다른 방식으로 조회").action("block").blockId(searchOptId));
 			srb.addReplies(new QuickReplies().label("전체 메뉴 보기").action("block").blockId(mainMenuId));
@@ -655,7 +730,7 @@ public class ChatController {
 			
 			infos = productService.selectProductInfosWithCategoryByRate(rate,pgNo).stream().filter(info->info.isSale()).collect(Collectors.toList());
 			List<ProductInfo> total = productService.selectProductInfosByRate(rate).stream().filter(info->info.isSale()).collect(Collectors.toList());
-			if(pgNo==1 && pgNo*15<total.size()) {		
+			if(pgNo==1 && pgNo*10<total.size()) {		
 				JSONObject next = new JSONObject();
 				next.put("limit",pgNo+1);
 				next.put("rate",srate);
@@ -666,14 +741,15 @@ public class ChatController {
 				prev.put("limit",pgNo-1);
 				prev.put("rate",srate);
 				srb.addReplies(new QuickReplies().label((pgNo-1)+"페이지 보기").action("block").blockId(productListId).extra(prev));
-				if(pgNo*15<total.size()) {
+				if(pgNo*10<total.size()) {
 					JSONObject next = new JSONObject();
 					next.put("limit",pgNo+1);
 					next.put("rate",srate);
 					srb.addReplies(new QuickReplies().label((pgNo+1)+"페이지 보기").action("block").blockId(productListId).extra(next));
 				}
 			}				
-			srb.addReplies(new QuickReplies().label("행사 더보기").action("message").messageText("행사 제품"));
+			srb.addReplies(new QuickReplies().label("다른 방식으로 조회").action("block").blockId(searchOptId));
+			srb.addReplies(new QuickReplies().label("전체 메뉴 보기").action("block").blockId(mainMenuId));
 		}
 		//추천 상품
 		else {
@@ -684,7 +760,7 @@ public class ChatController {
 			
 			infos = productService.selectProductInfosWithCategoryByLevel(1,pgNo).stream().filter(info->info.isSale()).collect(Collectors.toList());
 			List<ProductInfo> total = productService.selectProductInfosByLevel(1).stream().filter(info->info.isSale()).collect(Collectors.toList());
-			if(pgNo==1 && pgNo*15<total.size()) {		
+			if(pgNo==1 && pgNo*10<total.size()) {		
 				JSONObject next = new JSONObject();
 				next.put("limit",pgNo+1);
 				srb.addReplies(new QuickReplies().label((pgNo+1)+"페이지 보기").action("block").blockId(productListId).extra(next));
@@ -693,14 +769,14 @@ public class ChatController {
 				JSONObject prev = new JSONObject();
 				prev.put("limit",pgNo-1);
 				srb.addReplies(new QuickReplies().label((pgNo-1)+"페이지 보기").action("block").blockId(productListId).extra(prev));
-				if(pgNo*15<total.size()) {
+				if(pgNo*10<total.size()) {
 					JSONObject next = new JSONObject();
 					next.put("limit",pgNo+1);
 					srb.addReplies(new QuickReplies().label((pgNo+1)+"페이지 보기").action("block").blockId(productListId).extra(next));
 				}
 			}				
-//			srb.addReplies(new QuickReplies().label("다른 메뉴 보기").action("block").blockId(mainMenuId));
-//			srb.addReplies(new QuickReplies().label("추천 더보기").action("message").messageText("가정의 달"));
+			srb.addReplies(new QuickReplies().label("다른 방식으로 조회").action("block").blockId(searchOptId));
+			srb.addReplies(new QuickReplies().label("전체 메뉴 보기").action("block").blockId(mainMenuId));
 			
 		}
 		
@@ -711,14 +787,17 @@ public class ChatController {
 				CommerceCard card = new CommerceCard();
 				if(info.getComposition()!=null && !info.getComposition().equals("")) {
 //				card.description(info.getProductName()+" ["+info.getComposition()+"]");
-					card.profile(new Profile().nickname(info.getProductName()+" ["+info.getComposition()+"]").imageUrl(imageURL+"profile.png"));
+					card.profile(new Profile().nickname(marketName).imageUrl(imageURL+"profile.png"));
+					card.title(info.getProductName()+" ["+info.getComposition()+"]");
 				}
 				else if(info.getVolume()!=null && !info.getVolume().equals("")){
 //				card.description(info.getProductName()+" ["+info.getVolume()+"]");
-					card.profile(new Profile().nickname(info.getProductName()+" ["+info.getVolume()+"]").imageUrl(imageURL+"profile.png"));
+					card.profile(new Profile().nickname(marketName).imageUrl(imageURL+"profile.png"));
+					card.title(info.getProductName()+" ["+info.getVolume()+"]");
 				}
 				else {
-					card.profile(new Profile().nickname(info.getProductName()).imageUrl(imageURL+"profile.png"));
+					card.profile(new Profile().nickname(marketName).imageUrl(imageURL+"profile.png"));
+					card.title(info.getProductName());
 				}
 				card.price(info.getPrice());
 				if(info.isDiscount()) {
@@ -751,19 +830,40 @@ public class ChatController {
 		}
 		else {
 			if(products.size()!=0) {
-				for(ProductCode product : products) {
-					ProductInfo info = product.getProductInfo();
+//				for(ProductCode product : products) {
+				int sidx = (categoryNo-1)*10;
+				int eidx = sidx+10;
+				if(eidx>products.size())
+					eidx = products.size();
+				for(int idx=sidx;idx<eidx;idx++) {
+//					ProductInfo info = product.getProductInfo();
+					ProductInfo info = products.get(idx).getProductInfo();
+					ProductCode product = products.get(idx);
 					CommerceCard card = new CommerceCard();
+//					if(info.getComposition()!=null && !info.getComposition().equals("")) {
+////						card.description(info.getProductName()+" ["+info.getComposition()+"]");
+//						card.profile(new Profile().nickname(info.getProductName()+" ["+info.getComposition()+"]").imageUrl(imageURL+"profile.png"));
+//					}
+//					else if(info.getVolume()!=null && !info.getVolume().equals("")){
+////						card.description(info.getProductName()+" ["+info.getVolume()+"]");
+//						card.profile(new Profile().nickname(info.getProductName()+" ["+info.getVolume()+"]").imageUrl(imageURL+"profile.png"));
+//					}
+//					else {
+//						card.profile(new Profile().nickname(info.getProductName()).imageUrl(imageURL+"profile.png"));
+//					}
 					if(info.getComposition()!=null && !info.getComposition().equals("")) {
 //						card.description(info.getProductName()+" ["+info.getComposition()+"]");
-						card.profile(new Profile().nickname(info.getProductName()+" ["+info.getComposition()+"]").imageUrl(imageURL+"profile.png"));
+							card.profile(new Profile().nickname(marketName).imageUrl(imageURL+"profile.png"));
+							card.title(info.getProductName()+" ["+info.getComposition()+"]");
 					}
 					else if(info.getVolume()!=null && !info.getVolume().equals("")){
 //						card.description(info.getProductName()+" ["+info.getVolume()+"]");
-						card.profile(new Profile().nickname(info.getProductName()+" ["+info.getVolume()+"]").imageUrl(imageURL+"profile.png"));
+						card.profile(new Profile().nickname(marketName).imageUrl(imageURL+"profile.png"));
+						card.title(info.getProductName()+" ["+info.getVolume()+"]");
 					}
 					else {
-						card.profile(new Profile().nickname(info.getProductName()).imageUrl(imageURL+"profile.png"));
+						card.profile(new Profile().nickname(marketName).imageUrl(imageURL+"profile.png"));
+						card.title(info.getProductName());
 					}
 					card.price(info.getPrice());
 					if(info.isDiscount()) {
@@ -800,7 +900,7 @@ public class ChatController {
 				card.title("조회 결과 : 0건");
 				card.description("선택하신 조건으로 검색된 제품이 없습니다.");
 				card.thumbnail(new Thumbnail().imageUrl(imageURL+"empty.png"));
-				card.profile(new Profile().nickname("정관장 영동점").imageUrl(imageURL+"profile.png"));
+				card.profile(new Profile().nickname(marketName).imageUrl(imageURL+"profile.png"));
 				card.buttons(new Button().action("phone").label("전화로 문의하기").phoneNumber("043-744-2304"));
 				card.buttons(new Button().action("block").label("조회 방법 선택").blockId(searchOptId));
 				card.buttons(new Button().action("block").label("전체 메뉴 보기").blockId(mainMenuId));
@@ -856,7 +956,7 @@ public class ChatController {
 		
 		int totalprice = info.getTotalPrice();
 
-		int totaldiscount = (int)(totalprice*(0.01*discountrate))+discountprice; 
+		int totaldiscount = (int)(price*(0.01*discountrate))+discountprice; 
 
 		String alert = info.getAlert();
 				
@@ -873,7 +973,7 @@ public class ChatController {
 		
 		if(isHit) {
 			ItemList item1 = new ItemList();
-			item1.title("BEST 상품");
+			item1.title("추천 상품");
 			item1.description("O");
 			card.itemList(item1);
 		}

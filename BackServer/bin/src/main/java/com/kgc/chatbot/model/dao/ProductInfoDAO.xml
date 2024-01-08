@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kgc.chatbot.model.dao.ProductInfoDAO">
+	<resultMap id="productInfoMap" type="ProductInfo">
+		<id column="productCode" property="productCode"></id>
+		<result column="productName" property="productName"></result>
+		<result column="composition" property="composition"></result>
+		<result column="price" property="price"></result>
+		<result column="discount" property="discount"></result>
+		<result column="startdiscount" property="startdiscount"></result>
+		<result column="enddiscount" property="enddiscount"></result>
+		<result column="discountRate" property="discountRate"></result>
+		<result column="discountPrice" property="discountPrice"></result>
+		<result column="totalPrice" property="totalPrice"></result>
+		<result column="volume" property="volume"></result>
+		<result column="comment" property="comment"></result>
+		<result column="detail" property="detail"></result>
+		<result column="usage" property="usage"></result>
+		<result column="health" property="health"></result>
+		<result column="productLevel" property="productLevel"></result>
+		<result column="sale" property="sale"></result>
+		<result column="alert" property="alert"></result>
+	</resultMap>
+	
+	<resultMap id="ProductInfoCategoryMap" type="ProductInfo" autoMapping="true">
+		<id column="productCode" property="productCode"></id>
+		<association property="category" resultMap="com.kgc.chatbot.model.dao.ProductCodeDAO.productCodeMap"></association>
+	</resultMap>
+	<sql id="getMaxPrice">
+		select MAX(price) from productinfo
+	</sql>
+	
+	<sql id="basicSql">
+		select productCode,productName,composition,price,discount,startdiscount,enddiscount,discountRate,discountPrice,totalPrice,volume,comment,detail,`usage`,health,productLevel,sale,alert
+		from productinfo
+	</sql>
+	
+	<sql id="joinSql">
+		select c.productCode,c.mainName,c.subName,c.productName,c.thumbnail,i.composition,i.price,i.discount,i.startdiscount,i.enddiscount,i.discountRate,i.discountPrice,i.totalPrice,i.volume,i.comment,i.detail,i.usage,i.health,i.productLevel,i.sale,i.alert
+		from productinfo i
+		join productcode c on i.productCode = c.productCode
+	</sql>
+	<sql id="priceOption">
+		where totalPrice between 
+		<choose>
+			<when test="lower !=null">
+				#{lower}
+			</when>
+			<otherwise>
+				0
+			</otherwise>
+		</choose>
+		AND
+		<choose>
+			<when test="upper !=null">
+				#{upper}
+			</when>
+			<otherwise>
+				(<include refid="getMaxPrice"/>)
+			</otherwise>
+		</choose>
+	</sql>
+	
+	<sql id="joinpriceOption">
+		where i.totalPrice between 
+		<choose>
+			<when test="lower !=null">
+				#{lower}
+			</when>
+			<otherwise>
+				0
+			</otherwise>
+		</choose>
+		AND
+		<choose>
+			<when test="upper !=null">
+				#{upper}
+			</when>
+			<otherwise>
+				(<include refid="getMaxPrice"/>)
+			</otherwise>
+		</choose>
+	</sql>
+	<select id="selectProductInfosByName" parameterType="String" resultType="ProductInfo">
+		<include refid="basicSql"/>
+		where productName LIKE CONCAT('%',#{name},'%')
+	</select>
+	
+	<select id="selectProductInfosByPrice" parameterType="map" resultType="ProductInfo">
+		<include refid="basicSql"/>
+		<include refid="priceOption"/>
+		order by totalPrice
+	</select>
+	
+	<select id="selectProductInfosByLevel" parameterType="int" resultType="ProductInfo">
+		<include refid="basicSql"/>
+		where productLevel = #{level}
+	</select>
+	
+	<select id="selectProductInfo" parameterType="String" resultType="ProductInfo">
+		<include refid="basicSql"/>
+		where productCode=#{code}
+	</select>
+	
+	<select id="selectProductInfosWithCategoryByName" parameterType="String" resultMap="ProductInfoCategoryMap">
+		<include refid="joinSql"></include>
+		where c.productName LIKE CONCAT('%',#{name},'%')
+	</select>
+	
+	<select id="selectProductInfosWithCategoryByPrice" parameterType="map" resultMap="ProductInfoCategoryMap">
+		<include refid="joinSql"></include>
+		<include refid="joinpriceOption"></include>
+		order by i.totalPrice
+		limit #{start},#{end}
+	</select>
+	
+	<select id="selectProductInfosWithCategoryByLevel" parameterType="map" resultMap="ProductInfoCategoryMap">
+		<include refid="joinSql"></include>
+		where i.productLevel = #{level}
+		order by i.totalPrice
+		limit #{start},#{end}
+	</select>
+	
+	<select id="selectProductInfosByRate" parameterType="int" resultType="ProductInfo">
+		<include refid="basicSql"/>
+		where discountRate=#{rate}
+	</select>
+	
+	<select id="selectProductInfosWithCategoryByRate" parameterType="map" resultMap="ProductInfoCategoryMap">
+		<include refid="joinSql"></include>
+		where i.discountRate=#{rate}
+		order by i.totalPrice
+		limit #{start},#{end}
+	</select>
+	
+	<select id="selectProductInfoWithCategory" parameterType="String" resultMap="ProductInfoCategoryMap">
+		<include refid="joinSql"></include>
+		where i.productCode=#{code}
+	</select>
+	
+	<insert id="insertProductInfo" parameterType="ProductInfo">
+		insert into productinfo(productCode,productName,composition,price,discount,startdiscount,enddiscount,discountRate,discountPrice,totalPrice,volume,comment,detail,`usage`,health,productLevel,sale,alert)
+		values (#{productCode},#{productName},#{composition},#{price},#{discount},#{startdiscount},#{enddiscount},#{discountRate},#{discountPrice},#{totalPrice},#{volume},#{comment},#{detail},#{usage},#{health},#{productLevel},#{sale},#{alert})
+	</insert>
+	
+	<update id="updateProductInfo" parameterType="ProductInfo">
+		update productinfo
+		set productName=#{productName},composition=#{composition},price=#{price},discount=#{discount},startdiscount=#{startdiscount},enddiscount=#{enddiscount},discountRate=#{discountRate},discountPrice=#{discountPrice},totalPrice=#{totalPrice},volume=#{volume},comment=#{comment},detail=#{detail},`usage`=#{usage},health=#{health},productLevel=#{productLevel},sale=#{sale},alert=#{alert}
+		where productCode=#{productCode}
+	</update>
+	
+	<delete id="deleteProductInfo" parameterType="String">
+		delete from productinfo
+		where productCode=#{productCode}
+	</delete>
+</mapper>

@@ -12,7 +12,7 @@ public interface ProductInfoDAO {
 	
 	List<ProductInfo> selectProductInfosByName(String name);
 	
-	List<ProductInfo> selectProductInfosWithCategoryByName(String name);
+	List<ProductInfo> selectProductInfosWithCategoryByName(Map<String,Object> condition);
 	
 	List<ProductInfo> selectProductInfosByPrice(Map<String,Integer> condition);
 	

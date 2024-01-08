@@ -97,6 +97,7 @@ public class ProductServiceImpl implements ProductService {
 		return productCodeDAO.selectProductCode(code);
 	}
 
+	// 수정 필
 	@Override
 	public List<ProductCode> selectProductCodesWithInfo(String subCode) {
 		return productCodeDAO.selectProductCodesWithInfo(subCode);
@@ -132,9 +133,18 @@ public class ProductServiceImpl implements ProductService {
 		return productInfoDAO.selectProductInfosByName(name);
 	}
 
+	//수정 필요
 	@Override
-	public List<ProductInfo> selectProductInfosWithCategoryByName(String name) {
-		return productInfoDAO.selectProductInfosWithCategoryByName(name);
+	public List<ProductInfo> selectProductInfosWithCategoryByName(String name, int pgNo) {
+		final int pagePerCnt = 10;
+		final int start = (pgNo-1)*pagePerCnt;
+		final int end = pagePerCnt;
+		
+		Map<String,Object> condition = new HashMap<>();
+		condition.put("name",name);
+		condition.put("start",start);
+		condition.put("end",end);
+		return productInfoDAO.selectProductInfosWithCategoryByName(condition);
 	}
 
 	@Override
@@ -159,7 +169,7 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public List<ProductInfo> selectProductInfosWithCategoryByLevel(int level,int pgNo) {
-		final int pagePerCnt = 15;
+		final int pagePerCnt = 10;
 		final int start = (pgNo-1)*pagePerCnt;
 		final int end = pagePerCnt;
 		// 1 : 0 ~ 14
@@ -179,7 +189,7 @@ public class ProductServiceImpl implements ProductService {
 	}
 	@Override
 	public List<ProductInfo> selectProductInfosWithCategoryByRate(int rate,int pgNo){
-		final int pagePerCnt = 15;
+		final int pagePerCnt = 10;
 		final int start = (pgNo-1)*pagePerCnt;
 		final int end = pagePerCnt;
 		// 1 : 0 ~ 14

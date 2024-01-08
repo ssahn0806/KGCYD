@@ -383,8 +383,8 @@ public class ProductController {
 	
 	
 	@GetMapping("/search/name/{target}/info")
-	private ResponseEntity<List<ProductInfo>> doProductsWithCategoryByName(@PathVariable String target){
-		List<ProductInfo> productInfos = productService.selectProductInfosWithCategoryByName(target);
+	private ResponseEntity<List<ProductInfo>> doProductsWithCategoryByName(@PathVariable String target, @RequestParam int pgNo){
+		List<ProductInfo> productInfos = productService.selectProductInfosWithCategoryByName(target,pgNo);
 		
 		if(productInfos!=null) {
 			return ResponseEntity.ok(productInfos);

@@ -160,6 +160,9 @@
                     v-model="productInfo.discountRate"
                     size="lg"
                     type="number"
+                    step="0.01"
+                    min="0.00"
+                    max="100.00"
                     :disabled="!productInfo.discount"
                   ></b-form-input></b-col></b-row
             ></b-col>

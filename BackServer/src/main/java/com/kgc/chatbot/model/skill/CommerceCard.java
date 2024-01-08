@@ -15,6 +15,11 @@ public class CommerceCard {
 		commerceCard.put("thumbnails",thumbnails);
 		commerceCard.put("buttons",buttons);
 	}
+	
+	public CommerceCard title(String title) {
+		commerceCard.put("title",title);
+		return this;
+	}
 	public CommerceCard description(String description) {
 		commerceCard.put("description",description);
 		return this;

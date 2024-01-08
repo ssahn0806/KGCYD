@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kgc.chatbot.model.dao.BoardDAO">
+	<resultMap type="Board" id="BoardMap">
+		<id column="articleNo" property="articleNo"/>
+		<result column="userid" property="userId"/>
+		<result column="subject" property="subject"/>
+		<result column="content" property="content"/>
+		<result column="thumbnail" property="thumbnail"/>
+		<result column="registTime" property="registTime"/>
+		<result column="isEvent" property="isEvent"/>
+		<result column="startEvent" property="startEvent"/>
+		<result column="endEvent" property="endEvent"/>
+	</resultMap>
+	
+	
+	<select id="selectBoards" parameterType="boolean" resultMap="BoardMap">
+		<choose>
+			<when test="isEvent == true">
+				select articleNo,subject,thumbnail,startEvent,DATE_FORMAT(endEvent,'%Y-%m-%d') AS endEvent from board where isEvent = 1 order by endEvent,articleNo desc;
+			</when>
+			<otherwise>
+				select articleNo,subject,thumbnail,DATE_FORMAT(registTime,'%Y-%m-%d') AS registTime from board where isEvent = 0 order by articleNo desc;
+			</otherwise>
+		</choose>
+
+	</select>
+	
+	<select id="selectBoard" parameterType="int" resultMap="BoardMap">
+		select articleNo,userId,subject,content,thumbnail,DATE_FORMAT(registTime,'%Y-%m-%d') AS registTime,isEvent,startEvent,endEvent from board where articleNo=#{articleNo}
+	</select>
+	<insert id="insertBoard" parameterType="Board">
+		insert into board(subject,content,userid,registTime,isEvent,startEvent,endEvent)
+		values(#{subject},#{content},#{userId},now(),#{isEvent},#{startEvent},#{endEvent})
+		<selectKey keyColumn="articleNo,thumbnail" keyProperty="articleNo,thumbnail" resultType="map" order="AFTER">
+			SELECT MAX(articleNo) as articleNo,concat('notice_',MAX(articleNo),'.png') as thumbnail FROM board
+		</selectKey>
+	</insert>
+	
+	<delete id="deleteBoard" parameterType="int">
+		delete from board where articleNo = #{articleNo}
+	</delete>
+	
+	<update id="updateBoard" parameterType="Board">
+		update board set subject=#{subject},content=#{content},thumbnail=#{thumbnail},isEvent=#{isEvent},startEvent=#{startEvent},endEvent=#{endEvent}
+		where articleNo=#{articleNo}
+	</update>
+</mapper>

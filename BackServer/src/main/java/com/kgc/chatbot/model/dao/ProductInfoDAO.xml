@@ -103,9 +103,11 @@
 		where productCode=#{code}
 	</select>
 	
-	<select id="selectProductInfosWithCategoryByName" parameterType="String" resultMap="ProductInfoCategoryMap">
+	<select id="selectProductInfosWithCategoryByName" parameterType="map" resultMap="ProductInfoCategoryMap">
 		<include refid="joinSql"></include>
 		where c.productName LIKE CONCAT('%',#{name},'%')
+		order by i.totalPrice
+		limit #{start},#{end}
 	</select>
 	
 	<select id="selectProductInfosWithCategoryByPrice" parameterType="map" resultMap="ProductInfoCategoryMap">
