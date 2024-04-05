@@ -1,4 +1,4 @@
-<img src="https://kgcyd.store/favicon.ico" width="20%" alt="정관장 영동점">
+<img src="https://jgjyd.store/favicon.ico" width="20%" alt="정관장 영동점">
 
 # 카카오 채널 정관장 영동점 챗봇 서비스
 
